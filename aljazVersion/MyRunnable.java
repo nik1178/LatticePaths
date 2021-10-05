@@ -105,12 +105,13 @@ public class MyRunnable extends GridLabel {
 
         for(String x : hashColor.keySet()){
             if(x.equals("rightLine")) continue;
-            int newBrightness = hashColor.get(x).getBlue() + colorChangeSpeed;
+            int newBrightness = hashColor.get(x).getGreen() + colorChangeSpeed;
             if(newBrightness>255){
                 newBrightness=255;
             }
-            int red = hashColor.get(x).getRed();
-            hashColor.put(x, new Color(red, newBrightness, newBrightness));
+            int red = hashColor.get(x).getRed() - newBrightness;
+            if(red<0) red = 0;
+            hashColor.put(x, new Color(red, newBrightness, 0));
         }
 
         int tempx1 = (int)(this.x1*LINE_SIZE);
