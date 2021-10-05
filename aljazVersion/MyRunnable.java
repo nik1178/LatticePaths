@@ -87,11 +87,14 @@ public class MyRunnable extends GridLabel {
         }
     }
 
+    int colorChangeSpeed = 5;
+
     //hash maps of the coordinates where the line has already been. These are used to redraw all the red lines
     static HashMap<String,Integer> hashx1 = new HashMap<>();
     static HashMap<String,Integer> hashx2 = new HashMap<>();
     static HashMap<String,Integer> hashy1 = new HashMap<>();
     static HashMap<String,Integer> hashy2 = new HashMap<>();
+    static HashMap<String,Color> hashColor = new HashMap<>();
     @Override
     public synchronized void paint(Graphics g){
         
@@ -100,10 +103,21 @@ public class MyRunnable extends GridLabel {
         super.paintComponent(g);
         Graphics2D g2D = (Graphics2D) g;
 
+        for(String x : hashColor.keySet()){
+            if(x.equals("rightLine")) continue;
+            int newBrightness = hashColor.get(x).getBlue() + colorChangeSpeed;
+            if(newBrightness>255){
+                newBrightness=255;
+            }
+            int red = hashColor.get(x).getRed();
+            hashColor.put(x, new Color(red, newBrightness, newBrightness));
+        }
+
         int tempx1 = (int)(this.x1*LINE_SIZE);
         int tempy1 = (int)(this.y1*LINE_SIZE);
         int tempx2 = (int)(this.x2*LINE_SIZE);
         int tempy2 = (int)(this.y2*LINE_SIZE);
+        Color tempColor = new Color(255,0,0);
 
         //if the coordinates are already in the hasmaps they are skipped, otherwise they are saved into the hasmaps so they can be drawn later
         //we don't save all the coordinates so that we don't have to draw the same line multiple times for no reason
@@ -113,18 +127,20 @@ public class MyRunnable extends GridLabel {
             hashy1.put(tempx1+""+tempx2+""+tempy1+""+tempy2,tempy1);
             hashy2.put(tempx1+""+tempx2+""+tempy1+""+tempy2,tempy2);
         }
+        hashColor.put(tempx1+""+tempx2+""+tempy1+""+tempy2,tempColor);
 
         if(counter==MyFrame.gridSize+1) {//g2D.drawLine(500, 0, 500, 500);
             hashx1.put("rightLine",500);
             hashx2.put("rightLine",500);
             hashy1.put("rightLine",0);
             hashy2.put("rightLine",500);
+            hashColor.put("rightLine",tempColor);
         }        
         
         //draws all the red lines (the lines we have already visited) from the coordinates in the hasmaps
-        g2D.setPaint(Color.red);
         g2D.setStroke(new BasicStroke(3));
         for(String i : hashx1.keySet()){
+            g2D.setPaint(hashColor.get(i));
             tempx1 = hashx1.get(i);
             tempy1 = hashy1.get(i);
             tempx2 = hashx2.get(i);
