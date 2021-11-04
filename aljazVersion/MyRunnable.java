@@ -7,7 +7,7 @@ import java.awt.*;
 import java.util.*;
 public class MyRunnable extends GridLabel {
 
-
+    //test comment
     //multipliers for new small red line location. This is later multiplied by LINE_SIZE so we get the actual coordinates
     int x1=0;
     int x2=0;
@@ -70,9 +70,8 @@ public class MyRunnable extends GridLabel {
         if(shouldReturn) return;
         
         coordinates = x1+"@"+y1+"@"+x2+"@"+y2;
-        addCoordinates(x1,y1,x2,y2);
         repaint();
-        //while(counter>howManyTimesRepainted);
+        while(counter>howManyTimesRepainted);
         counter++;
         stopButtonCounter=1;
         try {
@@ -91,7 +90,6 @@ public class MyRunnable extends GridLabel {
             x2=horizontal+1;
             
             coordinates = x1+"@"+y1+"@"+x2+"@"+y2;
-            addCoordinates(x1,y1,x2,y2);
             repaint();
             algo(vertical, horizontal+1);
 
@@ -100,7 +98,6 @@ public class MyRunnable extends GridLabel {
             x2=horizontal+1;
             
             coordinates = x1+"@"+y1+"@"+x2+"@"+y2;
-            addCoordinates(x1,y1,x2,y2);
             repaint();
         }
         else{
@@ -113,21 +110,8 @@ public class MyRunnable extends GridLabel {
             y1=vertical;
 
             coordinates = x1+"@"+y1+"@"+x2+"@"+y2;
-            addCoordinates(x1,y1,x2,y2);
             repaint();
             algo(vertical+1, horizontal);
-        }
-    }
-    void addCoordinates(int tempx1, int tempy1, int tempx2, int tempy2){
-        tempx1 *= LINE_SIZE;
-        tempy1 *= LINE_SIZE;
-        tempx2 *= LINE_SIZE;
-        tempy2 *= LINE_SIZE;
-        if(!(hashx1.containsKey(tempx1+""+tempx2+""+tempy1+""+tempy2))){
-            hashx1.put(tempx1+""+tempx2+""+tempy1+""+tempy2,tempx1);
-            hashx2.put(tempx1+""+tempx2+""+tempy1+""+tempy2,tempx2);
-            hashy1.put(tempx1+""+tempx2+""+tempy1+""+tempy2,tempy1);
-            hashy2.put(tempx1+""+tempx2+""+tempy1+""+tempy2,tempy2);
         }
     }
 
@@ -174,12 +158,12 @@ public class MyRunnable extends GridLabel {
 
         //if the coordinates are already in the hasmaps they are skipped, otherwise they are saved into the hasmaps so they can be drawn later
         //we don't save all the coordinates so that we don't have to draw the same line multiple times for no reason
-        /* if(!(hashx1.containsKey(tempx1+""+tempx2+""+tempy1+""+tempy2))){
+        if(!(hashx1.containsKey(tempx1+""+tempx2+""+tempy1+""+tempy2))){
             hashx1.put(tempx1+""+tempx2+""+tempy1+""+tempy2,tempx1);
             hashx2.put(tempx1+""+tempx2+""+tempy1+""+tempy2,tempx2);
             hashy1.put(tempx1+""+tempx2+""+tempy1+""+tempy2,tempy1);
             hashy2.put(tempx1+""+tempx2+""+tempy1+""+tempy2,tempy2);
-        } */
+        }
         hashColor.put(tempx1+""+tempx2+""+tempy1+""+tempy2,tempColor);
 
         if(counter==MyFrame.gridSize+1) {//g2D.drawLine(500, 0, 500, 500);
