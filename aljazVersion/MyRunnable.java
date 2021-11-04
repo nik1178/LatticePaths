@@ -23,10 +23,12 @@ public class MyRunnable extends GridLabel {
     //variable to see if the user wants the algorithm to stop and with that return out of all it's methods
     volatile boolean shouldReturn = false;
 
-    int howManyExtraLoopsAfterEnd = 255;
+    int colorChangeSpeed = 5;
+    int howManyExtraLoopsAfterEnd = 255/colorChangeSpeed;
+    volatile int howManyRedUpdates = 0;
 
     //Add values to string first, so that they can't change partway through, due to drawing and calculation thread running seperately
-    String coordinates = "0@0@0@0";
+    String coordinates = "";
     @Override
     public void run() {
         //constantly looping the algorithm for when it should be called. If the algorithm is stopped or it finishes it calls the startButtonStop() method so the button properly chagnes
@@ -34,13 +36,15 @@ public class MyRunnable extends GridLabel {
         /* while(!Thread.interrupted()){ */
             
             howManyTimesRepainted=0;
+            howManyRedUpdates = 0;
+            howManyExtraLoopsAfterEnd = 255/colorChangeSpeed;
             algo(0, 0);
             shouldReturn=true;
 
             //Add a few more iterations to make sure all the lines turn green
-            int startHowmanytimesRepainted = this.howManyTimesRepainted;
+            int starthowManyRedUpdates = this.howManyRedUpdates;
             for(int i=0; i<howManyExtraLoopsAfterEnd; i++){
-                while(i+startHowmanytimesRepainted+1>howManyTimesRepainted);
+                while(i+starthowManyRedUpdates+1>howManyRedUpdates);
                 repaint();
                 try {
                     Thread.sleep(DELAY);
@@ -114,8 +118,6 @@ public class MyRunnable extends GridLabel {
         }
     }
 
-    int colorChangeSpeed = 5;
-
     //This is used to determine if the program is going too fast and that the paint thread couldn't keep up with the algorithm. Using this prevents graphical bugs... mostly
     volatile int howManyTimesRepainted = 0;
     //hash maps of the coordinates where the line has already been. These are used to redraw all the red lines
@@ -135,13 +137,26 @@ public class MyRunnable extends GridLabel {
         for(String x : hashColor.keySet()){
             if(x.equals("rightLine")) continue;
             int newBrightness = hashColor.get(x).getGreen() + colorChangeSpeed;
-            if(newBrightness>255){
+            if(newBrightness>=255){
                 newBrightness=255;
             }
             int red = hashColor.get(x).getRed() - newBrightness;
             if(red<0) red = 0;
             hashColor.put(x, new Color(red, newBrightness, 0));
+            howManyRedUpdates++;
         }
+
+        //draws all the red lines (the lines we have already visited) from the coordinates in the hasmaps
+        g2D.setStroke(new BasicStroke(3));
+        for(String i : hashx1.keySet()){
+            g2D.setPaint(hashColor.get(i));
+            int tempx1 = hashx1.get(i);
+            int tempy1 = hashy1.get(i);
+            int tempx2 = hashx2.get(i);
+            int tempy2 = hashy2.get(i);
+            g2D.drawLine(tempx1, tempy1, tempx2, tempy2);
+        }
+        if(coordinates.equals("")) return;
 
         String[] coordinatesSplit = this.coordinates.split("@");
         int beginningx1 = Integer.parseInt(coordinatesSplit[0]);
@@ -157,13 +172,13 @@ public class MyRunnable extends GridLabel {
 
         //if the coordinates are already in the hasmaps they are skipped, otherwise they are saved into the hasmaps so they can be drawn later
         //we don't save all the coordinates so that we don't have to draw the same line multiple times for no reason
-        if(!(hashx1.containsKey(tempx1+""+tempx2+""+tempy1+""+tempy2))){
-            hashx1.put(tempx1+""+tempx2+""+tempy1+""+tempy2,tempx1);
-            hashx2.put(tempx1+""+tempx2+""+tempy1+""+tempy2,tempx2);
-            hashy1.put(tempx1+""+tempx2+""+tempy1+""+tempy2,tempy1);
-            hashy2.put(tempx1+""+tempx2+""+tempy1+""+tempy2,tempy2);
+        if(!(hashx1.containsKey(tempx1+"{"+tempx2+"{"+tempy1+"{"+tempy2))){
+            hashx1.put(tempx1+"{"+tempx2+"{"+tempy1+"{"+tempy2,tempx1);
+            hashx2.put(tempx1+"{"+tempx2+"{"+tempy1+"{"+tempy2,tempx2);
+            hashy1.put(tempx1+"{"+tempx2+"{"+tempy1+"{"+tempy2,tempy1);
+            hashy2.put(tempx1+"{"+tempx2+"{"+tempy1+"{"+tempy2,tempy2);
         }
-        hashColor.put(tempx1+""+tempx2+""+tempy1+""+tempy2,tempColor);
+        hashColor.put(tempx1+"{"+tempx2+"{"+tempy1+"{"+tempy2,tempColor);
 
         if(counter==MyFrame.gridSize+1) {//g2D.drawLine(500, 0, 500, 500);
             hashx1.put("rightLine",500);
@@ -173,16 +188,6 @@ public class MyRunnable extends GridLabel {
             hashColor.put("rightLine",tempColor);
         }        
         
-        //draws all the red lines (the lines we have already visited) from the coordinates in the hasmaps
-        g2D.setStroke(new BasicStroke(3));
-        for(String i : hashx1.keySet()){
-            g2D.setPaint(hashColor.get(i));
-            tempx1 = hashx1.get(i);
-            tempy1 = hashy1.get(i);
-            tempx2 = hashx2.get(i);
-            tempy2 = hashy2.get(i);
-            g2D.drawLine(tempx1, tempy1, tempx2, tempy2);
-        }
         //g2D.drawLine(x1, y1, x2, y2);
 
 
@@ -197,6 +202,7 @@ public class MyRunnable extends GridLabel {
         g2D.drawLine(tempx1, tempy1, tempx2, tempy2);
         
         //System.out.println("hm " +x1 + " " + x2);
+        coordinates = "";
         this.howManyTimesRepainted++;
     }
 }
