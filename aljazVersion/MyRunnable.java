@@ -7,10 +7,6 @@ import java.awt.*;
 import java.util.*;
 public class MyRunnable extends GridLabel {
 
-    //test comment
-    //another test
-
-    //t
     //multipliers for new small red line location. This is later multiplied by LINE_SIZE so we get the actual coordinates
     int x1=0;
     int x2=0;
