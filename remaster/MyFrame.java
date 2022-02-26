@@ -16,6 +16,10 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
     static JButton delayButton = new JButton("Submit Delay in milliseconds");
     static JTextField delayTextField  = new JTextField();
 
+    JButton instantButton = new JButton("Instant");
+    JTextField instantTextField = new JTextField(); 
+
+
     ImageIcon icon = new ImageIcon("icon.png");
 
     static JTextField howManyPathsField = new JTextField("0");
@@ -117,6 +121,16 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
             }
         );
 
+        instantButton.setFocusable(false);
+        instantButton.addActionListener(
+            (e) -> {
+                String text = "" + (int)(factorial(2*gridSize)/(factorial(gridSize)*factorial(gridSize)));
+                instantTextField.setText(text);
+            }
+        );
+        instantTextField.setEditable(false);
+        instantTextField.setPreferredSize(new Dimension(100,20));
+
         submitField = new JTextField();
         submitField.setPreferredSize(new Dimension(40,20));
 
@@ -134,6 +148,9 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
         this.add(algoRunnable);
         this.add(startButton);
         this.add(howManyPathsField);
+
+        this.add(instantButton);
+        this.add(instantTextField);
 
         this.setIconImage(icon.getImage());
         this.getContentPane().setBackground(Color.black);
@@ -161,50 +178,12 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
         //algoRunnable.repaint();
     }
 
-    /* @Override
-    public void stateChanged(ChangeEvent e) {
-        algoRunnable.DELAY = delaySlider.getValue();
-    } */
-
-    /* int horizontalSetback = 1;
-    @Override
-	public void actionPerformed(ActionEvent e) {
-		
-        /* howManyPathsField.setText(howManyPaths + "");
-        repaint(); */
-        /* if(vertical==gridSize && horizontal==gridSize){
-            vertical=0;
-            horizontal-=horizontalSetback;
-            horizontalSetback++;
+    long factorial(int n){
+        if(n<0) return 0;
+        long result = 1;
+        for(int i=n; i>0; i--){
+            result*=i;
         }
-        if(horizontal<gridSize){
-            horizontal++;
-        } else {
-            howManyPaths++;
-            horizontal--;
-            vertical++;
-        }
-        
-		if(horizontal==0){
-            System.out.println("OIIIII!!");
-            startButtonStop();
-            howManyPaths*=2;
-            pressedStart++;
-            howManyPathsField.setText(howManyPaths + "");
-        } /* repaint(); */
-	/* } */
-/*     public void algo(int vertical, int horizontal)
-    {
-        System.out.println(Thread.currentThread().getPriority() + " this");
-        if(horizontal<gridSize)
-        {
-            repaint();
-            algo(vertical, horizontal+1);
-        }
-        else howManyPaths++;
-        if(vertical<gridSize && horizontal<gridSize)
-        {
-            algo(vertical+1, horizontal);
-        }
-    } */
+        return result;
+    }
 }
