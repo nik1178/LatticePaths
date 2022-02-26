@@ -8,7 +8,7 @@ import java.awt.*;
 public class MyFrame extends JFrame /* implements ChangeListener */{
 
     
-    JButton submitButton;
+    JButton submitGridButton;
     static JButton startButton = new JButton("Start");
     JTextField submitField;
     //static JSlider delaySlider;
@@ -60,33 +60,26 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
         //give it low priority because why not. Didn't test if it does anything or not
         drawThread.setPriority(1);
 
-        submitButton = new JButton("Submit grid size");
-        submitButton.setFocusable(false);
-        submitButton.addActionListener(
+        submitGridButton = new JButton("Submit grid size");
+        submitGridButton.setFocusable(false);
+        submitGridButton.addActionListener(
             (e) -> {
                 startButtonStop();
-                //after stopping the algorithm, wait 0.1s so the algorithm truly stops and doesn't acidentally draw new red lines after the old ones have been cleared
-                try {
-                    Thread.sleep(100);
-                } catch (Exception e1) {
-                    e1.printStackTrace();
-                    Thread.currentThread().interrupt();
-                }
-                //clear all the red lines
-                MyRunnable.hashx1.clear();
-                MyRunnable.hashy1.clear();
-                MyRunnable.hashx2.clear();
-                MyRunnable.hashy2.clear();
-                //restart how many paths have been calculated
-                howManyPaths=0;
+                algoRunnable.shouldReturn=true;
                 //try getting an integer. Try-catch added if someone inputs a String
                 try{
                     gridSize=Integer.parseInt(submitField.getText());
                 } catch(Exception e5){
                     System.out.println(e5);
                 }
-                //System.out.println(gridSize);
-                /* startGridDrawn = false; */
+                algoRunnable.breakAnimation = true;
+                try {
+                    algoThread.join();
+                } catch (InterruptedException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+                MyRunnable.lines.clear();
                 //call the paint method in GridLabel so it draws the grid again based on the new grid size
                 repaint();
             }
@@ -99,36 +92,27 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
             (e) -> {
                 //the button is toggleable so we check how many times it's been pressed
                 if(pressedStart%2==0){
-                    pressedStart++; //increment the amount of times it's been pressed. Would have probably been better to just set it to "1"
-                    //System.out.println("Wha..?");
+                    pressedStart=1; //increment the amount of times it's been pressed. Would have probably been better to just set it to "1"
                     //clear all the red lines
-                    MyRunnable.hashx1.clear();
-                    MyRunnable.hashy1.clear();
-                    MyRunnable.hashx2.clear();
-                    MyRunnable.hashy2.clear();
+                    //MyRunnable.lines.clear();
                     //set amount of calculated paths to 0
                     howManyPaths=0;
+                    algoThread.interrupt();
+                    /* try{
+                        algoThread.join();
+                    } catch(Exception e5){
+                        System.out.println("Couldn't join algoThread");
+                    } */
                     //change the text of the button to "stop", so it's clear that it's function changed
                     startButton.setText("Stop");
-                    /* GridLabel.stop=false; */
-                    /* algoThread.start(); */
                     //another counter is used to truly see if it's the first time the button has been pressed. If it is, it start up the thread that runs the algorithm
                     algoThread = new Thread(algoRunnable);
                     algoThread.start();
                     //tells the algorithm not to exit. Best way I could find to start and stop the method
                     algoRunnable.shouldReturn=false;
-                    /* algo(vertical,horizontal);
-                    timer.start(); */
                 } else{
-                    /* startButtonStop(); */
                     //call method to execute what the button should do if it has been pressed while it says "Stop". Used a method because I needed to call this code from different classes
                     startButtonStop();
-                    /* try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException e1) {
-                        e1.printStackTrace();
-                    } */
-                    /* algoThread.interrupt(); */
                 }
             }
         );
@@ -139,7 +123,7 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
         howManyPathsField.setEditable(false);
         howManyPathsField.setPreferredSize(new Dimension(100,20));
 
-        this.add(submitButton);
+        this.add(submitGridButton);
         this.add(submitField);
         /* this.add(delaySlider); */
         //this.add(gridLabel1);
@@ -167,12 +151,14 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
         //restart the amount of times it's been pressed to 0. I didn't just increment it, because sometimes this function accidentally gets called twice and that would screw with the true amount of times it's been pressed
         pressedStart=0;
         //tells the while loop in the MyRunnable class that it should stop calling this method
-        algoRunnable.stopButtonCounter=0;
+        algoRunnable.stopButtonBoolean=false;
         startButton.setText("Start");
         //System.out.println("yup, you were right");
         //tells the algorithm in MyRunnable to stop running by exiting as soon as it enters
         algoRunnable.shouldReturn=true;
-        algoThread.interrupt();
+        //algoThread.interrupt();
+        //MyRunnable.lines.clear();
+        //algoRunnable.repaint();
     }
 
     /* @Override
