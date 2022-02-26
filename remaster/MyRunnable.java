@@ -95,6 +95,7 @@ public class MyRunnable extends GridLabel {
         /* } */
     }
 
+    ArrayList<String> listCoordinates = new ArrayList<>();
     double LINE_SIZE = GridLabel.LINE_SIZE;
     public void algo(int vertical, int horizontal)
     {
@@ -102,9 +103,8 @@ public class MyRunnable extends GridLabel {
         //System.out.println("here" + java.lang.System.currentTimeMillis());
         if(shouldReturn) return;
         coordinates = x1+"@"+y1+"@"+x2+"@"+y2;
+        if(!listCoordinates.contains(coordinates)) listCoordinates.add(coordinates);
         repaint();
-        while(counter>howManyTimesRepainted) if(shouldReturn) return;
-        counter++;
         stopButtonBoolean=true;
         try {
             Thread.sleep(DELAY);
@@ -123,7 +123,7 @@ public class MyRunnable extends GridLabel {
             x2=horizontal+1;
             
             coordinates = x1+"@"+y1+"@"+x2+"@"+y2;
-            repaint();
+            if(!listCoordinates.contains(coordinates)) listCoordinates.add(coordinates);
             algo(vertical, horizontal+1);
             if(shouldReturn) return;
             x1=horizontal;
@@ -131,7 +131,7 @@ public class MyRunnable extends GridLabel {
             x2=horizontal+1;
             
             coordinates = x1+"@"+y1+"@"+x2+"@"+y2;
-            repaint();
+            if(!listCoordinates.contains(coordinates)) listCoordinates.add(coordinates);
         }
         else{
             MyFrame.howManyPaths++;
@@ -143,7 +143,7 @@ public class MyRunnable extends GridLabel {
             y1=vertical;
 
             coordinates = x1+"@"+y1+"@"+x2+"@"+y2;
-            repaint();
+            if(!listCoordinates.contains(coordinates)) listCoordinates.add(coordinates);
             algo(vertical+1, horizontal);
         }
     }
