@@ -22,6 +22,9 @@ public class MyRunnable extends GridLabel {
     volatile boolean shouldReturn = false;
     //When pressing "submit", we want the animation of the colors fading to instantly stop, because we're clearing the lines anyway
     volatile boolean breakAnimation = false;
+    //Color of the lines when they are created
+    Color initColor = new Color(255,0,0);
+
 
     int colorChangeSpeed = 5;
     int howManyExtraLoopsAfterEnd = 255/colorChangeSpeed;
@@ -87,8 +90,20 @@ public class MyRunnable extends GridLabel {
             x2=0;
             y1=0;
             y2=0;
-            for(String x : lines.keySet()){
-                lines.get(x).color = new Color(0,255,0);
+            boolean outsideSuccess = false;
+            while(!outsideSuccess){
+                try{
+                    for(String x : lines.keySet()){
+                        boolean succeeded = false;
+                        while(!succeeded){
+                            try{
+                                lines.get(x).color = new Color(0,255,0);
+                                succeeded = true;
+                            }catch(Exception e){System.out.println("Yup, this");}
+                        }
+                    }
+                    outsideSuccess = true;
+                }catch(Exception e){System.out.println("Actually this");}
             }
         /* } */
     }
@@ -112,6 +127,7 @@ public class MyRunnable extends GridLabel {
                 }catch(Exception e){}
             }
         }
+        counter++;
         repaint();
         stopButtonBoolean=true;
         try {
@@ -146,7 +162,7 @@ public class MyRunnable extends GridLabel {
             y1=y2;
             x2=horizontal+1;
             
-            coordinates = x1+"@"+y1+"@"+x2+"@"+y2;
+            /* coordinates = x1+"@"+y1+"@"+x2+"@"+y2;
             succeeded = false;
             if(!listCoordinates.contains(coordinates)){
                 while(!succeeded){
@@ -155,7 +171,7 @@ public class MyRunnable extends GridLabel {
                         succeeded=true;
                     }catch(Exception e){}
                 }
-            }
+            } */
         }
         else{
             MyFrame.howManyPaths++;
@@ -189,6 +205,8 @@ public class MyRunnable extends GridLabel {
     @Override
     public synchronized void paint(Graphics g){
 
+        //if(coordinates.equals("")) return;
+
         LINE_SIZE = GridLabel.LINE_SIZE;
         super.paint(g);
         super.paintComponent(g);
@@ -196,14 +214,16 @@ public class MyRunnable extends GridLabel {
 
         for(String x : lines.keySet()){
             if(x.equals("rightLine")) continue;
-            int newBrightness = lines.get(x).color.getGreen() + colorChangeSpeed;
-            if(newBrightness>=255){
-                newBrightness=255;
-            }
-            int red = lines.get(x).color.getRed() - newBrightness;
-            if(red<0) red = 0;
-            lines.get(x).color = new Color(red, newBrightness, 0);
-            howManyRedUpdates++;
+            try{
+                int newBrightness = lines.get(x).color.getGreen() + colorChangeSpeed;
+                if(newBrightness>=255){
+                    newBrightness=255;
+                }
+                int red = lines.get(x).color.getRed() - newBrightness;
+                if(red<0) red = 0;
+                lines.get(x).color = new Color(red, newBrightness, 0);
+                howManyRedUpdates++;
+            }catch(Exception e){System.out.println(x);}
         }
 
         //draws all the red lines (the lines we have already visited) from the coordinates in the hasmaps
@@ -217,6 +237,14 @@ public class MyRunnable extends GridLabel {
             int[] coords = lines.get(i).getCoords();
             g2D.drawLine(coords[0], coords[1], coords[2], coords[3]);
         }
+
+        if(lines.containsKey(this.coordinates)){
+            lines.get(this.coordinates).color = initColor;
+        }
+
+        if(!shouldReturn && !coordinates.equals("")) drawLeadLine(g2D);
+
+        //Adds new lines to the lines hashmap
         if(listCoordinates.size() == coordinatesToCheck) return;
 
         while(coordinatesToCheck < listCoordinates.size()){
@@ -231,26 +259,40 @@ public class MyRunnable extends GridLabel {
             int tempy1 = (int)(beginningy1*LINE_SIZE);
             int tempx2 = (int)(beginningx2*LINE_SIZE);
             int tempy2 = (int)(beginningy2*LINE_SIZE);
-            Color tempColor = new Color(255,0,0);
 
             //if the coordinates are already in the hasmaps they are skipped, otherwise they are saved into the hasmaps so they can be drawn later
             //we don't save all the coordinates so that we don't have to draw the same line multiple times for no reason
             if(!(lines.containsKey(tempCoordinates))){
-                lines.put(tempCoordinates, new Line(tempx1, tempy1, tempx2, tempy2));
+                lines.put(tempCoordinates, new Line(tempx1, tempy1, tempx2, tempy2, initColor));
             }
-            //We do save every color tho, because we want them to be refreshsed
-            lines.get(this.coordinates).color = tempColor;
 
-            if(counter==MyFrame.gridSize+1) {//g2D.drawLine(500, 0, 500, 500);
-                lines.put("rightLine", new Line(500, 0, 500, 500, tempColor));
+            //We do save every color tho, because we want them to be refreshsed
+            //lines.get(this.coordinates).color = initColor;
+
+            if(counter>=MyFrame.gridSize+1 && !lines.containsKey("rightLine")) {//g2D.drawLine(500, 0, 500, 500);
+                lines.put("rightLine", new Line(500, 0, 500, 500, initColor));
             }        
             
-            //draws the cyan line aka. the current line from the current coordinates
-            g2D.setPaint(Color.cyan);
-            g2D.setStroke(new BasicStroke(5));
-            g2D.drawLine(tempx1, tempy1, tempx2, tempy2);
             coordinatesToCheck++;
         }
+
+    }
+
+    void drawLeadLine(Graphics2D g2D){
+        String[] coordinatesSplit = this.coordinates.split("@");
+        int beginningx1 = Integer.parseInt(coordinatesSplit[0]);
+        int beginningy1 = Integer.parseInt(coordinatesSplit[1]);
+        int beginningx2 = Integer.parseInt(coordinatesSplit[2]);
+        int beginningy2 = Integer.parseInt(coordinatesSplit[3]);
+
+        int tempx1 = (int)(beginningx1*LINE_SIZE);
+        int tempy1 = (int)(beginningy1*LINE_SIZE);
+        int tempx2 = (int)(beginningx2*LINE_SIZE);
+        int tempy2 = (int)(beginningy2*LINE_SIZE);
+        //draws the cyan line aka. the current line from the current coordinates
+        g2D.setPaint(Color.cyan);
+        g2D.setStroke(new BasicStroke(5));
+        g2D.drawLine(tempx1, tempy1, tempx2, tempy2);
     }
 }
 class Line {
