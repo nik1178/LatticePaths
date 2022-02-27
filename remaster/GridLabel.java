@@ -20,6 +20,7 @@ public class GridLabel extends JLabel implements Runnable{
     int gridSize;
     int drawX=0;
     int drawY=0;
+    static Color lineColor = Color.white;
     static double LINE_SIZE; //calculate how long each line from a single square has to be
     int counter = 1;
     /* static boolean stop = true; */
@@ -34,19 +35,18 @@ public class GridLabel extends JLabel implements Runnable{
         MyFrame.horizontal=1;
         Graphics2D g2D = (Graphics2D) g;
 
-        /* if(!(MyFrame.startGridDrawn)) */ drawStartGrid(gridSize, g2D);
+        drawStartGrid(gridSize, g2D);
         
     }
 
     public void drawStartGrid(int gridSize, Graphics2D g2D){
-        g2D.setPaint(Color.white);
+        g2D.setPaint(lineColor);
         //draw 21 horizontal lines and 21 vertical lines. The spacing is based on the LINE_SIZE variable
         for(int i=0; i<=gridSize; i++){
             int x1 = 0;
             int x2 = 500;
             int y1 = (int) Math.round(i*LINE_SIZE);
             int y2 = y1;
-            //System.out.println(x1);
             g2D.drawLine(x1, y1, x2, y2);
         }
         for(int i=0; i<=gridSize; i++){
@@ -54,11 +54,8 @@ public class GridLabel extends JLabel implements Runnable{
             int y2 = 500;
             int x1 = (int) Math.round(i*LINE_SIZE);
             int x2 = x1;
-            //System.out.println(x1);
             g2D.drawLine(x1, y1, x2, y2);
         }
-
-        /* MyFrame.startGridDrawn = true; */
     }
 
 }

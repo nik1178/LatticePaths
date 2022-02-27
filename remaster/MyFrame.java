@@ -21,6 +21,7 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
     JButton instantButton = new JButton("Instant");
     JTextField instantTextField = new JTextField(); 
 
+    JButton customizeButton = new JButton("Customize");
 
     ImageIcon icon = new ImageIcon("icon.png");
 
@@ -37,6 +38,11 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
     static MyRunnable algoRunnable = new MyRunnable();
     static Thread algoThread = new Thread(algoRunnable);
     //Timer timer = new Timer(500,this);
+
+    CustomizeFrame customizeFrame = new CustomizeFrame();
+
+    static Dimension windowDimension = new Dimension(550,620);
+    static Color backgroundColor = Color.black;
 
     MyFrame(){
 
@@ -121,12 +127,18 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
             (e) -> {
                 String text = arrayToBignum(divide(factorial(2*gridSize) , multiply(factorial(gridSize) , factorial(gridSize)) ) ); 
                 instantTextField.setText(text);
-
-                //print(multiply(makeArray(479001600), 479001600));
             }
         );
         instantTextField.setEditable(false);
         instantTextField.setPreferredSize(new Dimension(100,20));
+
+        customizeButton.setFocusable(false);
+        customizeButton.addActionListener(
+            (e) -> {
+                customizeFrame.setVisible(true);
+                customizeFrame.setLocation(this.getX()+(int)this.windowDimension.getWidth(), this.getY());
+            }
+        );
 
         submitField = new JTextField();
         submitField.setPreferredSize(new Dimension(40,20));
@@ -143,6 +155,9 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
         this.add(delayTextField);
 
         this.add(algoRunnable);
+
+        this.add(customizeButton);
+
         this.add(startButton);
         this.add(howManyPathsField);
 
@@ -150,15 +165,95 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
         this.add(instantTextField);
 
         this.setIconImage(icon.getImage());
-        this.getContentPane().setBackground(Color.black);
+        this.getContentPane().setBackground(backgroundColor);
         this.setResizable(false);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setBounds(600,200,0,0);
-        this.setPreferredSize(new Dimension(550,620));
+        this.setPreferredSize(windowDimension);
         this.setLayout(new FlowLayout());
         this.pack();
+        this.setLocationRelativeTo(null);
         this.setVisible(true);
 
+        //Customize frame-----------------------------------------------
+        customizeFrame.setLocation(this.getX()+(int)this.windowDimension.getWidth(), this.getY());
+
+        customizeFrame.backgroundButton.addActionListener(
+            (e) -> {
+                boolean succeeded = false;
+                while(!succeeded){
+                    try{
+                        Color color = JColorChooser.showDialog(null, "Background color", MyFrame.backgroundColor);
+                        if(color!=null){
+                            this.getContentPane().setBackground(color);
+                            this.backgroundColor = color;
+                            customizeFrame.setBackgroundColor(color);
+                        }
+                        succeeded=true;
+                    }catch(Exception e2){}
+                }
+            }
+        );
+        customizeFrame.gridButton.addActionListener(
+            (e) -> {
+                boolean succeeded = false;
+                while(!succeeded){
+                    try{
+                        Color color = JColorChooser.showDialog(null, "Grid color", GridLabel.lineColor);
+                        if(color!=null) GridLabel.lineColor = color;
+                        repaint();
+                        succeeded=true;
+                    }catch(Exception e2){}
+                }
+            }
+        );
+        customizeFrame.leadColorButton.addActionListener(
+            (e) -> {
+                boolean succeeded = false;
+                while(!succeeded){
+                    try{
+                        Color color = JColorChooser.showDialog(null, "Lead color", MyRunnable.leadColor);
+                        if(color!=null) MyRunnable.leadColor = color;
+                        succeeded=true;
+                    }catch(Exception e2){}
+                }
+            }
+        );
+        customizeFrame.startColorButton.addActionListener(
+            (e) -> {
+                boolean succeeded = false;
+                while(!succeeded){
+                    try{
+                        Color color = JColorChooser.showDialog(null, "Start color", MyRunnable.initColor);
+                        if(color!=null) MyRunnable.initColor = color;
+                        succeeded=true;
+                    }catch(Exception e2){}
+                }
+            }
+        );
+        customizeFrame.fadeColorButton.addActionListener(
+            (e) -> {
+                boolean succeeded = false;
+                while(!succeeded){
+                    try{
+                        Color color = JColorChooser.showDialog(null, "Fade color", MyRunnable.fadeColor);
+                        if(color!=null) MyRunnable.initColor = color;
+                        succeeded=true;
+                    }catch(Exception e2){}
+                }
+            }
+        );
+        customizeFrame.pathColorButton.addActionListener(
+            (e) -> {
+                boolean succeeded = false;
+                while(!succeeded){
+                    try{
+                        Color color = JColorChooser.showDialog(null, "Path color", MyRunnable.pathColor);
+                        if(color!=null) MyRunnable.pathColor = color;
+                        succeeded=true;
+                    }catch(Exception e2){}
+                }
+            }
+        );
     }
 
     public static void startButtonStop(){
@@ -171,6 +266,12 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
         algoRunnable.shouldReturn=true;
     }
 
+
+    public static boolean flipBoolean(boolean b){
+        if(b) b=false;
+        else b=true;
+        return b;
+    }
 
     //Math----------------------------------------------------
 

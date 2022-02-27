@@ -23,17 +23,25 @@ public class MyRunnable extends GridLabel {
     //When pressing "submit", we want the animation of the colors fading to instantly stop, because we're clearing the lines anyway
     volatile boolean breakAnimation = false;
     //Color of the lines when they are created
-    Color initColor = new Color(255,0,0);
+    static Color initColor = new Color(255,0,0);
+    //Color of the line that shows you the path the program took
+    static Color pathColor = new Color(255,126,0);
+    //Color of pointer line
+    static Color leadColor = Color.cyan;
+    //Color that the program fades to after the red
+    static Color fadeColor = new Color(0,255,0);
+    //Enable or disable the path line
+    static boolean doPathLine = true;
 
-
-    int colorChangeSpeed = 5;
+    //How much the color changes every time repaint is called
+    static int colorChangeSpeed = 5;
     int howManyExtraLoopsAfterEnd = 255/colorChangeSpeed;
     volatile int howManyRedUpdates = 0;
 
     @Override
     public void run() {
         lines.clear();
-        listCoordinates.clear();
+        pathLines.clear();
         coordinatesToCheck = 0;
         //ut.println("here");
         singleThreaded();
@@ -57,6 +65,7 @@ public class MyRunnable extends GridLabel {
             //howManyExtraLoopsAfterEnd = 255/colorChangeSpeed;
             algo(0, 0);
             shouldReturn=true;
+            pathLines.clear();
 
             //Add a few more iterations to make sure all the lines turn green
             int starthowManyRedUpdates = this.howManyRedUpdates;
@@ -98,7 +107,7 @@ public class MyRunnable extends GridLabel {
                         boolean succeeded = false;
                         while(!succeeded){
                             try{
-                                lines.get(x).color = new Color(0,255,0);
+                                lines.get(x).color = fadeColor;
                                 succeeded = true;
                             }catch(Exception e){System.out.println("Yup, this");}
                         }
@@ -113,7 +122,6 @@ public class MyRunnable extends GridLabel {
     //Add values to string first, so that they can't change partway through, due to drawing and calculation thread running seperately
     String coordinates = "";
 
-    ArrayList<String> listCoordinates = new ArrayList<>();
     double LINE_SIZE = GridLabel.LINE_SIZE;
     public void algo(int vertical, int horizontal)
     {
@@ -142,6 +150,7 @@ public class MyRunnable extends GridLabel {
             coordinates = x1+"@"+y1+"@"+x2+"@"+y2;
             addLineToHash(coordinates);
             algo(vertical, horizontal+1);
+            if(doPathLine) removeLastPathLine();
             if(shouldReturn) return;
             x1=horizontal;
             y1=y2;
@@ -159,7 +168,9 @@ public class MyRunnable extends GridLabel {
             coordinates = x1+"@"+y1+"@"+x2+"@"+y2;
             addLineToHash(coordinates);
             algo(vertical+1, horizontal);
+            if(doPathLine) removeLastPathLine();
         }
+        if(doPathLine) removeLastPathLine();
     }
 
     void addLineToHash(String coordinates){
@@ -184,6 +195,7 @@ public class MyRunnable extends GridLabel {
                 if(!(lines.containsKey(coordinates))){
                     lines.put(coordinates, new Line(tempx1, tempy1, tempx2, tempy2, initColor));
                 }
+                if(doPathLine) pathLines.add(new Line(tempx1, tempy1, tempx2, tempy2, pathColor));
 
                 lines.get(coordinates).color = initColor;
 
@@ -197,11 +209,22 @@ public class MyRunnable extends GridLabel {
             }catch (Exception e){}
         }
     }
+    void removeLastPathLine(){
+        if(coordinates.equals("")) return;
+        boolean succeeded = false;
+        while(!succeeded){
+            try{
+                if(pathLines.size()>0)pathLines.remove(pathLines.size()-1);
+                succeeded = true;
+            }catch (Exception e){System.out.println("WOW");}
+        }
+    }
 
     //This is used to determine if the program is going too fast and that the paint thread couldn't keep up with the algorithm. Using this prevents graphical bugs... mostly
     volatile int howManyTimesRepainted = 0;
     //hash maps of the coordinates where the line has already been. These are used to redraw all the red lines
     static HashMap<String,Line> lines = new HashMap<>();
+    static ArrayList<Line> pathLines = new ArrayList<>();
 
     int coordinatesToCheck=0;
     @Override
@@ -245,6 +268,11 @@ public class MyRunnable extends GridLabel {
                     int[] coords = lines.get(i).getCoords();
                     g2D.drawLine(coords[0], coords[1], coords[2], coords[3]);
                 }
+                for(Line l : pathLines){
+                    g2D.setPaint(l.color);
+                    int[] coords = l.getCoords();
+                    g2D.drawLine(coords[0], coords[1], coords[2], coords[3]);
+                }
                 succeeded = true;
             }catch(Exception e){}
         }
@@ -271,7 +299,7 @@ public class MyRunnable extends GridLabel {
         int tempx2 = (int)(beginningx2*LINE_SIZE);
         int tempy2 = (int)(beginningy2*LINE_SIZE);
         //draws the cyan line aka. the current line from the current coordinates
-        g2D.setPaint(Color.cyan);
+        g2D.setPaint(leadColor);
         g2D.setStroke(new BasicStroke(5));
         g2D.drawLine(tempx1, tempy1, tempx2, tempy2);
     }
