@@ -99,16 +99,9 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
                 //the button is toggleable so we check how many times it's been pressed
                 if(pressedStart%2==0){
                     pressedStart=1; //increment the amount of times it's been pressed. Would have probably been better to just set it to "1"
-                    //clear all the red lines
-                    //MyRunnable.lines.clear();
                     //set amount of calculated paths to 0
                     howManyPaths=0;
                     algoThread.interrupt();
-                    /* try{
-                        algoThread.join();
-                    } catch(Exception e5){
-                        System.out.println("Couldn't join algoThread");
-                    } */
                     //change the text of the button to "stop", so it's clear that it's function changed
                     startButton.setText("Stop");
                     //another counter is used to truly see if it's the first time the button has been pressed. If it is, it start up the thread that runs the algorithm
@@ -128,6 +121,8 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
             (e) -> {
                 String text = arrayToBignum(divide(factorial(2*gridSize) , multiply(factorial(gridSize) , factorial(gridSize)) ) ); 
                 instantTextField.setText(text);
+
+                //print(multiply(makeArray(479001600), 479001600));
             }
         );
         instantTextField.setEditable(false);
@@ -172,13 +167,12 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
         //tells the while loop in the MyRunnable class that it should stop calling this method
         algoRunnable.stopButtonBoolean=false;
         startButton.setText("Start");
-        //System.out.println("yup, you were right");
         //tells the algorithm in MyRunnable to stop running by exiting as soon as it enters
         algoRunnable.shouldReturn=true;
-        //algoThread.interrupt();
-        //MyRunnable.lines.clear();
-        //algoRunnable.repaint();
     }
+
+
+    //Math----------------------------------------------------
 
     int[] factorial(int n){
         if(n<0){
@@ -204,26 +198,15 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
         return result;
     }
 
-    int[] checkOverflow(int num){
+    static int[] checkOverflow(int num){
         int[] arr = {num};
         return checkOverflow(arr);
     }
     //Turn the array into an arrayList and send it to the other checkOverflow, then turn the result back into an array and return it
-    int[] checkOverflow(int[] arr){
-        ArrayList<Integer> al = new ArrayList<>();
-        for(int i=0; i<arr.length; i++){
-            al.add(arr[i]);
-        }
-        
-        al = checkOverflow(al);
-
-        int[] result = new int[al.size()];
-        for(int i=0; i<al.size(); i++){
-            result[i] = al.get(i);
-        }
-        return result;
+    static int[] checkOverflow(int[] arr){
+        return convertList(checkOverflow(convertList(arr)));
     }
-    ArrayList<Integer> checkOverflow(ArrayList<Integer> al){
+    static ArrayList<Integer> checkOverflow(ArrayList<Integer> al){
         //Check for each num in the array if it's bigger than 10. If it is, add the tens digit to the next num in the array
         for(int i=0; i<al.size(); i++){
             int currentNum = al.get(i);
@@ -236,12 +219,13 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
                     al.add(0);
                 }
                 al.set(i+1,al.get(i+1)+overflow);
+                //i--;
             }
         }
         return al;
     }
     int[] multiply(int[] arr1, int num){
-        int[] arr2 = {num};
+        int[] arr2 = makeArray(num);
         return multiply(arr1, arr2);
     }
     int[] multiply(int[] arr1, int[] arr2){
@@ -254,11 +238,17 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
         -------
           14400
         */
+        /* print(arr1, true);
+        print(arr2, true); */
         int[][] results = new int[arr2.length][arr1.length*2+1];
         for(int i=0; i<arr2.length; i++){
             for(int j=0; j<arr1.length;j++){
                 //Multiply each result by the amount it needs to be offset in the basic multiplication
-                results[i][j] = arr1[j]*arr2[i]*(int)Math.pow(10,i);
+                results[i][j+i] = arr1[j]*arr2[i];
+                /* print(arr1[j]);
+                print(arr2[i]);
+                print(arr1[j]*arr2[i]);
+                print("-------"); */
             }
             results[i] = checkOverflow(results[i]);
         }
@@ -269,10 +259,12 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
             for(int j=0; j<results.length; j++){
                 result[i] += results[j][i];
             }
-            checkOverflow(result);
+            result = checkOverflow(result);
         }
 
         result = trim(result);
+        /* print(result, true);
+        print("^------^"); */
         return result;
     }
 
@@ -290,6 +282,9 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
         for(int i=0; i<lastNumIndex; i++){
             result[i]=arr[i];
         }
+        if(result.length==0){
+            result = new int[] {0};
+        }
         return result;
     }
 
@@ -303,37 +298,133 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
             return new int[] {-1};
         }
 
-        int multiplier = 1;
-        int[] arr2copy = arr2.clone();
-        while(arr2copy.length<=arr1.length){
-            multiplier++;
-            arr2copy = multiply(arr2, multiplier);
-            if(arr2copy.length<arr1.length){
-                continue;
+        print(arr1);
+        print(arr2);
+
+        int[] result = new int[arr1.length];
+        ArrayList<Integer> remainder = new ArrayList<>();
+        int firstLength = arr1.length-arr2.length;
+
+        for(int i=arr1.length-1; i>=0; i--){
+            remainder.add(0, arr1[i]);
+            //if(remainder.size()<firstLength-2)continue;
+
+            result = multiply(result, 10);
+
+            int[] temp = subtract(convertList(remainder), arr2);
+            while(temp[0]>=0){
+                remainder = subtract(remainder, convertList(arr2));
+                result[0]++;
+                //result = checkOverflow(result);
+                temp = subtract(temp, arr2);
+
             }
-            //If the two numbers are the same length, check if arr2copy is bigger than arr1, if it is, reduce the multiplier by 1 and return it
-            boolean shouldContinue = false;
-            for(int i=arr2copy.length-1; i>=0;i--){
-                if(arr2copy[i]>arr1[i]){
-                    return checkOverflow(multiplier-1);
-                }else if(arr2copy[i]<arr1[i]){
-                    shouldContinue = true;
-                    break;
-                }
-            }
-            if(shouldContinue) continue;
-            //if we got out of the for loop without calling continue, it means the two numbers are identical. Return the multiplier
-            return checkOverflow(multiplier);
         }
-        //If it escaped the while loop, it means that arr2copy length is bigger than arr1 length, so the second num got too big, meaning we reduce the multiplier by 1
-        return checkOverflow(multiplier-1);
+        print("-----");
+        result = checkOverflow(result);
+        result = trim(result);
+        return result;
     }
 
-    String arrayToBignum(int[] arr){
+    int[] subtract(int[] arr1, int[] arr2){
+        return convertList( subtract(convertList(arr1), convertList(arr2)) );
+    }
+    ArrayList<Integer> subtract(ArrayList<Integer> al1, ArrayList<Integer> al2){
+        //Primary school subtraction
+        /*
+         124124
+        - 41212
+        -------
+          82912
+        */
+        if(al1.size()<al2.size()) return convertList(new int[] {-1});
+
+        int[] result = new int[al1.size()];
+        for(int i=0; i<al1.size(); i++){
+            int subtraction = 0;
+            if(i<al2.size()){
+                subtraction = al2.get(i);
+            }
+
+            //Maybe useless: += because: If it overflows into the negative, we will subtract from the next space, giving us a negative num in a not yet used position.
+            result[i]+=al1.get(i) - subtraction;
+        }
+        result = checkNegativeOverflow(result);
+        result = trim(result);
+        return convertList(result);
+    }
+
+    int[] checkNegativeOverflow(int[] arr){
+        for(int i=0; i<arr.length; i++){
+            if(arr[i]<0){
+                if(arr.length<=i+1){
+                    return new int[] {-1};
+                }
+                arr[i+1]--;
+                arr[i]+=10;
+            }
+        }
+        return arr;
+    }
+
+    static int[] makeArray(int n){
+        return checkOverflow(n);
+    }
+
+    static int[] convertList(ArrayList<Integer> al){
+        return listToArray(al);
+    }
+    static ArrayList<Integer> convertList(int[] arr){
+        return arrayToList(arr);
+    }
+
+    static ArrayList<Integer> arrayToList(int[] arr){
+        ArrayList<Integer> result = new ArrayList<>();
+        for(int i=0; i<arr.length; i++){
+            result.add(arr[i]);
+        }
+        return result;
+    }
+
+    static int[] listToArray(ArrayList<Integer> al){
+        int[] result = new int[al.size()];
+        for(int i=0; i<al.size(); i++){
+            result[i]=al.get(i);
+        }
+        return result;
+    }
+
+    static String arrayToBignum(int[] arr){
         StringBuilder sb = new StringBuilder("");
         for(int i=arr.length-1; i>=0; i--){
             sb.append(arr[i]);
         }
         return sb.toString();
+    }
+    static String arrayToBignum(int[] arr, boolean b){
+        StringBuilder sb = new StringBuilder("");
+        for(int i=arr.length-1; i>=0; i--){
+            sb.append(arr[i]);
+            sb.append(",");
+        }
+        return sb.toString();
+    }
+
+    static void print(ArrayList<Integer> al){
+        print(convertList(al));
+    }
+    static void print(int[] arr){
+        print(arrayToBignum(arr));
+    }
+    static void print(int[] arr, boolean b){
+        print(arrayToBignum(arr, true));
+    }
+
+    static void print(String s){
+        System.out.println(s);
+    }
+    
+    static void print(int n){
+        System.out.println(n);
     }
 }
