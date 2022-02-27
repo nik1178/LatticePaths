@@ -1,5 +1,7 @@
 package remaster;
 
+import java.util.*;
+
 import javax.swing.*;
 
 import java.awt.*;
@@ -124,7 +126,7 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
         instantButton.setFocusable(false);
         instantButton.addActionListener(
             (e) -> {
-                String text = "" + (int)(factorial(2*gridSize)/(factorial(gridSize)*factorial(gridSize)));
+                String text = arrayToBignum(divide(factorial(2*gridSize) , multiply(factorial(gridSize) , factorial(gridSize)) ) ); 
                 instantTextField.setText(text);
             }
         );
@@ -178,12 +180,160 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
         //algoRunnable.repaint();
     }
 
-    long factorial(int n){
-        if(n<0) return 0;
-        long result = 1;
-        for(int i=n; i>0; i--){
-            result*=i;
+    int[] factorial(int n){
+        if(n<0){
+            int[] x = {0};
+            return x;
+        }
+
+        ArrayList<Integer> al = new ArrayList<>();
+        al.add(1);
+        while(n>0){
+            for(int i=0; i<al.size(); i++){
+                int currentNum = al.get(i) * n;
+                al.set(i, currentNum);
+            }
+            al = checkOverflow(al);
+            n--;
+        }
+
+        int[] result = new int[al.size()];
+        for(int i=0; i<al.size(); i++){
+            result[i] = al.get(i);
         }
         return result;
+    }
+
+    int[] checkOverflow(int num){
+        int[] arr = {num};
+        return checkOverflow(arr);
+    }
+    //Turn the array into an arrayList and send it to the other checkOverflow, then turn the result back into an array and return it
+    int[] checkOverflow(int[] arr){
+        ArrayList<Integer> al = new ArrayList<>();
+        for(int i=0; i<arr.length; i++){
+            al.add(arr[i]);
+        }
+        
+        al = checkOverflow(al);
+
+        int[] result = new int[al.size()];
+        for(int i=0; i<al.size(); i++){
+            result[i] = al.get(i);
+        }
+        return result;
+    }
+    ArrayList<Integer> checkOverflow(ArrayList<Integer> al){
+        //Check for each num in the array if it's bigger than 10. If it is, add the tens digit to the next num in the array
+        for(int i=0; i<al.size(); i++){
+            int currentNum = al.get(i);
+            if(currentNum>=10){
+                int overflow = currentNum/10;
+                currentNum %= 10;
+                al.set(i, currentNum);
+                //If there is no next num in the array, add a 0 and add it to that
+                if(i==al.size()-1){
+                    al.add(0);
+                }
+                al.set(i+1,al.get(i+1)+overflow);
+            }
+        }
+        return al;
+    }
+    int[] multiply(int[] arr1, int num){
+        int[] arr2 = {num};
+        return multiply(arr1, arr2);
+    }
+    int[] multiply(int[] arr1, int[] arr2){
+        //Primary school multiplication into lines
+        /*
+        120*120
+          120
+           240
+            000
+        -------
+          14400
+        */
+        int[][] results = new int[arr2.length][arr1.length*2+1];
+        for(int i=0; i<arr2.length; i++){
+            for(int j=0; j<arr1.length;j++){
+                //Multiply each result by the amount it needs to be offset in the basic multiplication
+                results[i][j] = arr1[j]*arr2[i]*(int)Math.pow(10,i);
+            }
+            results[i] = checkOverflow(results[i]);
+        }
+
+        //Add the lines together
+        int[] result = new int[results[0].length];
+        for(int i=0; i<results[0].length; i++){
+            for(int j=0; j<results.length; j++){
+                result[i] += results[j][i];
+            }
+            checkOverflow(result);
+        }
+
+        result = trim(result);
+        return result;
+    }
+
+    //remove any zeroes in the front of a largenum array
+    int[] trim(int[] arr){
+        int lastNumIndex=0;
+        for(int i=arr.length-1; i>=0; i--){
+            if(arr[i]!=0){
+                lastNumIndex=i+1;
+                break;
+            }
+        }
+
+        int[] result = new int[lastNumIndex];
+        for(int i=0; i<lastNumIndex; i++){
+            result[i]=arr[i];
+        }
+        return result;
+    }
+
+    int[] divide(int[] arr1, int[] arr2){
+        //multiply arr2 until it's bigger or equal to arr1. The amount of times you had to do that is your result. I ain't doing decimal places, don't need 'em
+        //if the second num is longer than the first num, it's obviously bigger and can't be divided
+        if(arr2.length>arr1.length){
+            return new int[] {0};
+        }
+        if(arr2.length==1 && arr2[0]==0){
+            return new int[] {-1};
+        }
+
+        int multiplier = 1;
+        int[] arr2copy = arr2.clone();
+        while(arr2copy.length<=arr1.length){
+            multiplier++;
+            arr2copy = multiply(arr2, multiplier);
+            if(arr2copy.length<arr1.length){
+                continue;
+            }
+            //If the two numbers are the same length, check if arr2copy is bigger than arr1, if it is, reduce the multiplier by 1 and return it
+            boolean shouldContinue = false;
+            for(int i=arr2copy.length-1; i>=0;i--){
+                if(arr2copy[i]>arr1[i]){
+                    return checkOverflow(multiplier-1);
+                }else if(arr2copy[i]<arr1[i]){
+                    shouldContinue = true;
+                    break;
+                }
+            }
+            if(shouldContinue) continue;
+            //if we got out of the for loop without calling continue, it means the two numbers are identical. Return the multiplier
+            return checkOverflow(multiplier);
+        }
+        //If it escaped the while loop, it means that arr2copy length is bigger than arr1 length, so the second num got too big, meaning we reduce the multiplier by 1
+        return checkOverflow(multiplier-1);
+    }
+
+    String arrayToBignum(int[] arr){
+        StringBuilder sb = new StringBuilder("");
+        for(int i=arr.length-1; i>=0; i--){
+            sb.append(arr[i]);
+        }
+        return sb.toString();
     }
 }
