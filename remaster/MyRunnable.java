@@ -33,9 +33,9 @@ public class MyRunnable extends GridLabel {
     //Enable or disable the path line
     static boolean doPathLine = true;
 
-    //How much the color changes every time repaint is called
-    static int colorChangeSpeed = 5;
-    int howManyExtraLoopsAfterEnd = 255/colorChangeSpeed;
+    //Amount we want the RGB value to change every repaint. The value goes from 0 to 255, colorChangeSpeed tells us how big we want the steps
+    static double colorChangeSpeed = 5;
+    //int howManyExtraLoopsAfterEnd = 255/colorChangeSpeed;
     volatile int howManyRedUpdates = 0;
 
     @Override
@@ -68,7 +68,8 @@ public class MyRunnable extends GridLabel {
             pathLines.clear();
 
             //Add a few more iterations to make sure all the lines turn green
-            int starthowManyRedUpdates = this.howManyRedUpdates;
+            int starthowManyRedUpdates = 0;
+            int howManyExtraLoopsAfterEnd = (int)((double)255/colorChangeSpeed);
             for(int i=0; i<howManyExtraLoopsAfterEnd; i++){
                 if(breakAnimation){
                     System.out.println("breakanimation");
@@ -107,6 +108,7 @@ public class MyRunnable extends GridLabel {
                         boolean succeeded = false;
                         while(!succeeded){
                             try{
+                                lines.get(x).doubleColor= new double[] {fadeColor.getRed(), fadeColor.getGreen(), fadeColor.getBlue()};
                                 lines.get(x).color = fadeColor;
                                 succeeded = true;
                             }catch(Exception e){System.out.println("Yup, this");}
@@ -198,6 +200,7 @@ public class MyRunnable extends GridLabel {
                 if(doPathLine) pathLines.add(new Line(tempx1, tempy1, tempx2, tempy2, pathColor));
 
                 lines.get(coordinates).color = initColor;
+                lines.get(coordinates).resetDoubles();
 
                 //We do save every color tho, because we want them to be refreshsed
                 //lines.get(this.coordinates).color = initColor;
@@ -238,25 +241,7 @@ public class MyRunnable extends GridLabel {
         super.paintComponent(g);
         Graphics2D g2D = (Graphics2D) g;
 
-        succeeded = false;
-        while(!succeeded){
-            try{
-                for(String x : lines.keySet()){
-                    if(x.equals("rightLine")) continue;
-                    try{
-                        int newBrightness = lines.get(x).color.getGreen() + colorChangeSpeed;
-                        if(newBrightness>=255){
-                            newBrightness=255;
-                        }
-                        int red = lines.get(x).color.getRed() - newBrightness;
-                        if(red<0) red = 0;
-                        lines.get(x).color = new Color(red, newBrightness, 0);
-                        howManyRedUpdates++;
-                    }catch(Exception e){System.out.println(x);}
-                }
-                succeeded = true;
-            }catch(Exception e){}
-        }
+        fadeAnimation(g2D);
 
         //draws all the red lines (the lines we have already visited) from the coordinates in the hasmaps
         g2D.setStroke(new BasicStroke(3));
@@ -287,6 +272,42 @@ public class MyRunnable extends GridLabel {
 
     }
 
+    void fadeAnimation(Graphics2D g2D){
+        while(true){
+            try{
+                int[] fadeColorInt = {fadeColor.getRed(), fadeColor.getGreen(), fadeColor.getBlue()};
+                for(String x : lines.keySet()){
+                    if(x.equals("rightLine")){
+                        continue;
+                    }
+                    try{
+                        //3 repetitions, one for each color
+                        for(int j=0; j<3; j++){
+                            double changeAmount = this.colorChangeSpeed;
+                            if(changeAmount>Math.abs(fadeColorInt[j]-lines.get(x).doubleColor[j])){
+                                changeAmount = Math.abs(fadeColorInt[j]-lines.get(x).doubleColor[j]);
+                            }
+                            if(lines.get(x).doubleColor[j]>fadeColorInt[j]){
+                                lines.get(x).doubleColor[j]-=changeAmount;
+                            } else{
+                                lines.get(x).doubleColor[j]+=changeAmount;
+                            }
+                            if(lines.get(x).doubleColor[j]>255){
+                                lines.get(x).doubleColor[j]=255;
+                            }
+                            if(lines.get(x).doubleColor[j]<0){
+                                lines.get(x).doubleColor[j]=0;
+                            }
+                        }
+                        lines.get(x).color = new Color((int)lines.get(x).doubleColor[0], (int)lines.get(x).doubleColor[1], (int)lines.get(x).doubleColor[2]);
+                        howManyRedUpdates++;
+                    }catch(Exception e){System.out.println(e);}
+                }
+                return;
+            }catch(Exception e){}
+        }
+    }
+
     void drawLeadLine(Graphics2D g2D){
         String[] coordinatesSplit = this.coordinates.split("@");
         int beginningx1 = Integer.parseInt(coordinatesSplit[0]);
@@ -310,6 +331,7 @@ class Line {
     int y1;
     int y2;
     Color color;
+    double[] doubleColor = new double[3];
 
     Line(int x1, int y1, int x2, int y2){
         this.x1 = x1;
@@ -323,10 +345,15 @@ class Line {
         this.y1 = y1;
         this.y2 = y2;
         this.color = color;
+        this.doubleColor = new double[] {color.getRed(), color.getGreen(), color.getBlue()};
     }
 
     int[] getCoords(){
         int[] coords = {this.x1, this.y1, this.x2, this.y2};
         return coords;
+    }
+
+    void resetDoubles(){
+        this.doubleColor = new double[] {this.color.getRed(), this.color.getGreen(), this.color.getBlue()};
     }
 }

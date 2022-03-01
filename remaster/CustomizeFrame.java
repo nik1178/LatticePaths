@@ -16,6 +16,9 @@ public class CustomizeFrame extends JFrame{
     JButton startColorButton = new JButton("Start color");
     JButton fadeColorButton = new JButton("Fade color");
     JButton pathColorButton = new JButton("Path color");
+    JButton fadeSpeedButton = new JButton("Fade speed");
+    JTextField fadeSpeedField = new JTextField(); 
+
     CustomizeFrame(){
 
         pathToggleButton.setFocusable(false);
@@ -32,12 +35,15 @@ public class CustomizeFrame extends JFrame{
             }
         );
 
+
         backgroundButton.setFocusable(false);
         gridButton.setFocusable(false);
         leadColorButton.setFocusable(false);
         startColorButton.setFocusable(false);
         fadeColorButton.setFocusable(false);
         pathColorButton.setFocusable(false);
+
+        fadeSpeedField.setPreferredSize(new Dimension(50,20));
 
         this.add(pathToggleButton);
         this.add(backgroundButton);
@@ -46,6 +52,8 @@ public class CustomizeFrame extends JFrame{
         this.add(startColorButton);
         this.add(fadeColorButton);
         this.add(pathColorButton);
+        this.add(fadeSpeedButton);
+        this.add(fadeSpeedField);
 
         this.getContentPane().setBackground(Color.black);
         this.setResizable(false);

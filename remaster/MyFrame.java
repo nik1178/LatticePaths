@@ -156,13 +156,13 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
 
         this.add(algoRunnable);
 
-        this.add(customizeButton);
-
         this.add(startButton);
         this.add(howManyPathsField);
 
         this.add(instantButton);
         this.add(instantTextField);
+
+        this.add(customizeButton);
 
         this.setIconImage(icon.getImage());
         this.getContentPane().setBackground(backgroundColor);
@@ -225,6 +225,12 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
                     try{
                         Color color = JColorChooser.showDialog(null, "Start color", MyRunnable.initColor);
                         if(color!=null) MyRunnable.initColor = color;
+                        if(!algoRunnable.shouldReturn){
+                            if(MyRunnable.lines.containsKey("rightLine")){
+                                MyRunnable.lines.get("rightLine").color = color;
+                                MyRunnable.lines.get("rightLine").resetDoubles();
+                            }
+                        }
                         succeeded=true;
                     }catch(Exception e2){}
                 }
@@ -236,7 +242,7 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
                 while(!succeeded){
                     try{
                         Color color = JColorChooser.showDialog(null, "Fade color", MyRunnable.fadeColor);
-                        if(color!=null) MyRunnable.initColor = color;
+                        if(color!=null) MyRunnable.fadeColor = color;
                         succeeded=true;
                     }catch(Exception e2){}
                 }
@@ -249,6 +255,21 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
                     try{
                         Color color = JColorChooser.showDialog(null, "Path color", MyRunnable.pathColor);
                         if(color!=null) MyRunnable.pathColor = color;
+                        succeeded=true;
+                    }catch(Exception e2){}
+                }
+            }
+        );
+        customizeFrame.fadeSpeedButton.addActionListener(
+            (e) -> {
+                boolean succeeded = false;
+                while(!succeeded){
+                    try{
+                        try{
+                            MyRunnable.colorChangeSpeed=Double.parseDouble(customizeFrame.fadeSpeedField.getText());
+                        }catch(Exception e3){
+                            System.out.println("Not a number");
+                        }
                         succeeded=true;
                     }catch(Exception e2){}
                 }
