@@ -1,4 +1,4 @@
-package remaster;
+
 
 //import javax.swing.*;
 
@@ -187,10 +187,10 @@ public class MyRunnable extends GridLabel {
                 int beginningx2 = Integer.parseInt(coordinatesSplit[2]);
                 int beginningy2 = Integer.parseInt(coordinatesSplit[3]);
 
-                int tempx1 = (int)(beginningx1*LINE_SIZE);
-                int tempy1 = (int)(beginningy1*LINE_SIZE);
-                int tempx2 = (int)(beginningx2*LINE_SIZE);
-                int tempy2 = (int)(beginningy2*LINE_SIZE);
+                int tempx1 = (int)Math.round(beginningx1*LINE_SIZE);
+                int tempy1 = (int)Math.round(beginningy1*LINE_SIZE);
+                int tempx2 = (int)Math.round(beginningx2*LINE_SIZE);
+                int tempy2 = (int)Math.round(beginningy2*LINE_SIZE);
 
                 //if the coordinates are already in the hasmaps they are skipped, otherwise they are saved into the hasmaps so they can be drawn later
                 //we don't save all the coordinates so that we don't have to draw the same line multiple times for no reason
@@ -315,10 +315,10 @@ public class MyRunnable extends GridLabel {
         int beginningx2 = Integer.parseInt(coordinatesSplit[2]);
         int beginningy2 = Integer.parseInt(coordinatesSplit[3]);
 
-        int tempx1 = (int)(beginningx1*LINE_SIZE);
-        int tempy1 = (int)(beginningy1*LINE_SIZE);
-        int tempx2 = (int)(beginningx2*LINE_SIZE);
-        int tempy2 = (int)(beginningy2*LINE_SIZE);
+        int tempx1 = (int)Math.round(beginningx1*LINE_SIZE);
+        int tempy1 = (int)Math.round(beginningy1*LINE_SIZE);
+        int tempx2 = (int)Math.round(beginningx2*LINE_SIZE);
+        int tempy2 = (int)Math.round(beginningy2*LINE_SIZE);
         //draws the cyan line aka. the current line from the current coordinates
         g2D.setPaint(leadColor);
         g2D.setStroke(new BasicStroke(5));
