@@ -16,9 +16,9 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
     //static JSlider delaySlider;
 
     static JButton delayButton = new JButton("Submit Delay in milliseconds");
-    static JTextField delayTextField  = new JTextField();
+    static JTextField delayTextField  = new JTextField("100");
 
-    JButton instantButton = new JButton("Instant");
+    JButton instantButton = new JButton("Fast");
     JTextField instantTextField = new JTextField(); 
 
     JButton customizeButton = new JButton("Customize");

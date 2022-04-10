@@ -217,9 +217,9 @@ public class MyRunnable extends GridLabel {
         boolean succeeded = false;
         while(!succeeded){
             try{
-                if(pathLines.size()>0)pathLines.remove(pathLines.size()-1);
+                if(!pathLines.isEmpty())pathLines.remove(pathLines.size()-1);
                 succeeded = true;
-            }catch (Exception e){System.out.println("WOW");}
+            }catch (Exception e){System.out.println("Could not remove last line from pathLines.");}
         }
     }
 
@@ -234,7 +234,6 @@ public class MyRunnable extends GridLabel {
     public synchronized void paint(Graphics g){
 
         //if(coordinates.equals("")) return;
-        boolean succeeded = false;
 
         LINE_SIZE = GridLabel.LINE_SIZE;
         super.paint(g);
@@ -245,7 +244,7 @@ public class MyRunnable extends GridLabel {
 
         //draws all the red lines (the lines we have already visited) from the coordinates in the hasmaps
         g2D.setStroke(new BasicStroke(3));
-        succeeded = false;
+        boolean succeeded = false;
         while(!succeeded){
             try{
                 for(String i : lines.keySet()){
@@ -253,13 +252,23 @@ public class MyRunnable extends GridLabel {
                     int[] coords = lines.get(i).getCoords();
                     g2D.drawLine(coords[0], coords[1], coords[2], coords[3]);
                 }
-                for(Line l : pathLines){
+                succeeded = true;
+            }catch(Exception e){System.out.println("Loooped drawing all lines.");}
+        }
+
+        succeeded = false;
+        int pathLinesDrawn = 0;
+        while(!succeeded){
+            try{
+                for(int i=pathLinesDrawn; i<pathLines.size(); i++){
+                    Line l = pathLines.get(i);
                     g2D.setPaint(l.color);
                     int[] coords = l.getCoords();
                     g2D.drawLine(coords[0], coords[1], coords[2], coords[3]);
+                    pathLinesDrawn++;
                 }
                 succeeded = true;
-            }catch(Exception e){}
+            }catch(Exception e){System.out.println("Loooped drawing path lines.");}
         }
 
         /* if(lines.containsKey(this.coordinates)){
@@ -277,7 +286,7 @@ public class MyRunnable extends GridLabel {
             try{
                 int[] fadeColorInt = {fadeColor.getRed(), fadeColor.getGreen(), fadeColor.getBlue()};
                 for(String x : lines.keySet()){
-                    if(x.equals("rightLine")){
+                    if(!shouldReturn && x.equals("rightLine")){
                         continue;
                     }
                     try{
