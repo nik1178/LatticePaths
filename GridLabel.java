@@ -8,8 +8,8 @@ public class GridLabel extends JLabel implements Runnable{
 
     @Override
     public void run() {
-        //repaint everything constantly. Made so I don't have to call it at specific times, since the grid has to be painted constantly anyway
-        /* while(true) */ repaint();
+        //repaint only once, as we only need the main grid once. The rest is dealt with my MyRunnable
+        repaint();
     }
 
     GridLabel(){
@@ -41,7 +41,7 @@ public class GridLabel extends JLabel implements Runnable{
 
     public void drawStartGrid(int gridSize, Graphics2D g2D){
         g2D.setPaint(lineColor);
-        //draw 21 horizontal lines and 21 vertical lines. The spacing is based on the LINE_SIZE variable
+        //draw gridSize+1 horizontal lines and gridSize+1 vertical lines. The spacing is based on the LINE_SIZE variable
         for(int i=0; i<=gridSize; i++){
             int x1 = 0;
             int x2 = 500;

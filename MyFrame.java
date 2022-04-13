@@ -1,6 +1,6 @@
 
 
-import java.util.*;
+import java.util.ArrayList;
 
 import javax.swing.*;
 
@@ -367,10 +367,6 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
             for(int j=0; j<arr1.length;j++){
                 //Multiply each result by the amount it needs to be offset in the basic multiplication
                 results[i][j+i] = arr1[j]*arr2[i];
-                /* print(arr1[j]);
-                print(arr2[i]);
-                print(arr1[j]*arr2[i]);
-                print("-------"); */
             }
             results[i] = checkOverflow(results[i]);
         }
@@ -412,6 +408,7 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
 
     int[] divide(int[] arr1, int[] arr2){
         //multiply arr2 until it's bigger or equal to arr1. The amount of times you had to do that is your result. I ain't doing decimal places, don't need 'em
+        //^Doesn't seem like I did this method. I did the basic OŠ method
         //if the second num is longer than the first num, it's obviously bigger and can't be divided
         if(arr2.length>arr1.length){
             return new int[] {0};
@@ -425,14 +422,17 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
 
         int[] result = new int[arr1.length];
         ArrayList<Integer> remainder = new ArrayList<>();
-        int firstLength = arr1.length-arr2.length;
 
         for(int i=arr1.length-1; i>=0; i--){
+            //Keep adding the next digit of the first number to the remainder until it's bigger than the second number
+            //Don't know why it's called remeainder, it should be called a subnumber or something
             remainder.add(0, arr1[i]);
             //if(remainder.size()<firstLength-2)continue;
 
+            //Multiply the result, because every repetition means adding a new digit to the result like in the OŠ method
             result = multiply(result, 10);
 
+            //subtract the second number from the remainder as many times as possible.  We are checking if temp[0] is bigger or equal to 0, because the checkNegativeOverflow method will return a -1 in that spot if the result is negative
             int[] temp = subtract(convertList(remainder), arr2);
             while(temp[0]>=0){
                 remainder = subtract(remainder, convertList(arr2));

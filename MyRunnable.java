@@ -77,10 +77,10 @@ public class MyRunnable extends GridLabel {
                 }
                 long timeEntered = java.lang.System.currentTimeMillis();
                 while(i+starthowManyRedUpdates+1>howManyRedUpdates){
-                    if(java.lang.System.currentTimeMillis() - timeEntered > 50){
+                    /* if(java.lang.System.currentTimeMillis() - timeEntered > 50){
                         howManyRedUpdates++;
                         System.out.println("reached");
-                    }
+                    } */
                     if(breakAnimation) break;
                 }
                 repaint();
@@ -275,7 +275,7 @@ public class MyRunnable extends GridLabel {
             lines.get(this.coordinates).color = initColor;
         } */
 
-        addLineToHash("");
+        //addLineToHash("");
 
         if(!shouldReturn && !coordinates.equals("")) drawLeadLine(g2D);
 

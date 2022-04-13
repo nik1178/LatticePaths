@@ -42,8 +42,10 @@ public class CustomizeFrame extends JFrame{
         startColorButton.setFocusable(false);
         fadeColorButton.setFocusable(false);
         pathColorButton.setFocusable(false);
+        fadeSpeedButton.setFocusable(false);
 
         fadeSpeedField.setPreferredSize(new Dimension(50,20));
+        fadeSpeedField.setText(MyRunnable.colorChangeSpeed + "");
 
         this.add(pathToggleButton);
         this.add(backgroundButton);
