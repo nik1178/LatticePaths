@@ -19,6 +19,8 @@ public class CustomizeFrame extends JFrame{
     JButton fadeSpeedButton = new JButton("Fade speed");
     JTextField fadeSpeedField = new JTextField(); 
 
+    ImageIcon icon = new ImageIcon("icon.png");
+
     CustomizeFrame(){
 
         pathToggleButton.setFocusable(false);
@@ -57,6 +59,7 @@ public class CustomizeFrame extends JFrame{
         this.add(fadeSpeedButton);
         this.add(fadeSpeedField);
 
+        this.setIconImage(this.icon.getImage());
         this.getContentPane().setBackground(Color.black);
         this.setResizable(false);
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
