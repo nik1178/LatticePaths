@@ -10,6 +10,7 @@ import java.awt.*;
 public class CustomizeFrame extends JFrame{
 
     JButton pathToggleButton = new JButton("Toggle path");
+    JTextField pathToggleField = new JTextField("" + MyRunnable.doPathLine);
     JButton backgroundButton = new JButton("Background color");
     JButton gridButton = new JButton("Grid color");
     JButton leadColorButton = new JButton("Lead color");
@@ -24,15 +25,18 @@ public class CustomizeFrame extends JFrame{
     CustomizeFrame(){
 
         pathToggleButton.setFocusable(false);
+        pathToggleField.setEditable(false);
+        pathToggleField.setPreferredSize(new Dimension(40,20));
         pathToggleButton.addActionListener(
             (e) -> {
                 MyRunnable.doPathLine = MyFrame.flipBoolean(MyRunnable.doPathLine);
+                pathToggleField.setText(MyRunnable.doPathLine + "");
                 boolean succeeded = false;
                 while(!succeeded){
                     try{
                         MyRunnable.pathLines.clear();
                         succeeded=true;
-                    }catch(Exception e2){}
+                    }catch(Exception e2){System.out.println("Retrying pathLines.clear() in pathToggleButton");}
                 }
             }
         );
@@ -50,6 +54,7 @@ public class CustomizeFrame extends JFrame{
         fadeSpeedField.setText(MyRunnable.colorChangeSpeed + "");
 
         this.add(pathToggleButton);
+        this.add(pathToggleField);
         this.add(backgroundButton);
         this.add(gridButton);
         this.add(leadColorButton);

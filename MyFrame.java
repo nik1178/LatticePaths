@@ -80,7 +80,10 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
                 algoRunnable.shouldReturn=true;
                 //try getting an integer. Try-catch added if someone inputs a String
                 try{
-                    gridSize=Integer.parseInt(submitField.getText());
+                    int newGridSize = Integer.parseInt(submitField.getText());
+                    if(newGridSize>0){
+                        this.gridSize=newGridSize;
+                    }
                 } catch(Exception e5){
                     System.out.println(e5);
                 }
