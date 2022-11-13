@@ -6,6 +6,7 @@ import javax.swing.*;
 
 import java.awt.*;
 //import java.awt.event.*;
+import java.math.BigInteger;
 
 public class MyFrame extends JFrame /* implements ChangeListener */{
 
@@ -128,8 +129,11 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
         instantButton.setFocusable(false);
         instantButton.addActionListener(
             (e) -> {
-                String text = arrayToBignum(divide(factorial(2*gridSize) , multiply(factorial(gridSize) , factorial(gridSize)) ) ); 
+                //String text = arrayToBignum(divide(factorial(2*gridSize) , multiply(factorial(gridSize) , factorial(gridSize)) ) ); 
+                BigInteger num = BigInteger.valueOf(MyFrame.gridSize);
+                String text = ( (bigIntFactorial(num.multiply(BigInteger.valueOf(2)))).divide(bigIntFactorial(num).multiply(bigIntFactorial(num))) ).toString();
                 instantTextField.setText(text);
+                print("fin");
             }
         );
         instantTextField.setEditable(false);
@@ -299,7 +303,17 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
 
     //Math----------------------------------------------------
 
-    int[] factorial(int n){
+    BigInteger bigIntFactorial(BigInteger num){
+        BigInteger counter = BigInteger.valueOf(1);
+        BigInteger result = BigInteger.valueOf(1);
+        while(!counter.toString().equals(num.add(BigInteger.valueOf(1)).toString())){
+            result = result.multiply(counter);
+            counter = counter.add(BigInteger.valueOf(1));
+        }
+        return result;
+    }
+
+    /* int[] factorial(int n){
         if(n<0){
             int[] x = {0};
             return x;
@@ -355,16 +369,14 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
     }
     int[] multiply(int[] arr1, int[] arr2){
         //Primary school multiplication into lines
-        /*
-        120*120
-          120
-           240
-            000
-        -------
-          14400
-        */
-        /* print(arr1, true);
-        print(arr2, true); */
+        
+        //120*120
+        //  120
+        //   240
+        //    000
+        //-------
+        //  14400
+
         int[][] results = new int[arr2.length][arr1.length*2+1];
         for(int i=0; i<arr2.length; i++){
             for(int j=0; j<arr1.length;j++){
@@ -384,8 +396,6 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
         }
 
         result = trim(result);
-        /* print(result, true);
-        print("^------^"); */
         return result;
     }
 
@@ -456,12 +466,12 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
     }
     ArrayList<Integer> subtract(ArrayList<Integer> al1, ArrayList<Integer> al2){
         //Primary school subtraction
-        /*
-         124124
-        - 41212
-        -------
-          82912
-        */
+        
+        //  124124
+        // - 41212
+        // -------
+        //   82912
+       
         if(al1.size()<al2.size()) return convertList(new int[] {-1});
 
         int[] result = new int[al1.size()];
@@ -490,11 +500,11 @@ public class MyFrame extends JFrame /* implements ChangeListener */{
             }
         }
         return arr;
-    }
+    } */
 
-    static int[] makeArray(int n){
+    /* static int[] makeArray(int n){
         return checkOverflow(n);
-    }
+    } */
 
     static int[] convertList(ArrayList<Integer> al){
         return listToArray(al);
